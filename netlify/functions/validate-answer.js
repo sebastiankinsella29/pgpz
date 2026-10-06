@@ -1,6 +1,7 @@
 const { timingSafeEqual } = require("node:crypto");
 
 const TOTAL_LEVELS = 7;
+const LEVEL_ONE_DOCUMENT_URL = "https://docs.google.com/document/d/1lEfcHXlaRvOR1rbiCkWKRHRk5DmDUN0PEPsmBu5qEZU/edit?usp=sharing";
 
 exports.handler = async (event) => {
 	if (event.httpMethod !== "POST") {
@@ -49,7 +50,7 @@ exports.handler = async (event) => {
 };
 
 function getDocumentUrl(level) {
-	const value = process.env[`ARG_LEVEL_${level}_DOC`];
+	const value = process.env[`ARG_LEVEL_${level}_DOC`] || (level === 1 ? LEVEL_ONE_DOCUMENT_URL : "");
 	if (!value) return "";
 	try {
 		const url = new URL(value);
