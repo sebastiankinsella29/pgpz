@@ -29,12 +29,20 @@ exports.handler = async (event) => {
 	if (payload.action === "enter") {
 		const configuredPassword = process.env.ARG_ENTRY_PASSWORD || "TE9SRQ==";
 		if (typeof payload.password !== "string" || !constantTimeMatch(payload.password.trim(), configuredPassword)) {
-			return respond(401, { ok: false, error: "Access phrase not recognized." });
+			return respond(401, { ok: false, error: "That password isn't correct. Please try again." });
 		}
 
 		const currentDocumentUrl = getDocumentUrl(1);
 		if (!currentDocumentUrl) return respond(503, { ok: false, error: "Level documents are not configured yet." });
 		return respond(200, { ok: true, currentDocumentUrl });
+	}
+
+	if (payload.action === "hint") {
+		if (!Number.isInteger(payload.level) || payload.level < 1 || payload.level > TOTAL_LEVELS) {
+			return respond(400, { ok: false, error: "Invalid level." });
+		}
+		const hint = process.env[`ARG_LEVEL_${payload.level}_HINT`];
+		return respond(200, { ok: true, hint: hint || "No hint is available for this level yet." });
 	}
 
 	if (payload.action !== "answer" || !Number.isInteger(payload.level) || payload.level < 1 || payload.level > TOTAL_LEVELS || typeof payload.answer !== "string") {
@@ -46,7 +54,7 @@ exports.handler = async (event) => {
 	const submittedAnswer = payload.answer.trim().toUpperCase();
 	const expectedAnswer = configuredAnswer.trim().toUpperCase();
 	if (!constantTimeMatch(submittedAnswer, expectedAnswer)) {
-		return respond(401, { ok: false, error: "That answer does not open this file." });
+		return respond(401, { ok: false, error: "That answer isn't correct. Check the level document and try again." });
 	}
 
 	if (payload.level === TOTAL_LEVELS) return respond(200, { ok: true, complete: true });

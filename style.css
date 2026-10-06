@@ -186,6 +186,29 @@ body {
 .answer-form {
 	padding: 20px;
 }
+.hint-button {
+	margin-top: 10px;
+	padding: 9px 12px;
+	border: 1px solid rgba(168,188,255,.35);
+	border-radius: 8px;
+	background: transparent;
+	color: var(--blue-300);
+	font-size: 14px;
+	cursor: pointer;
+}
+.hint-button:hover:not(:disabled) {
+	background: rgba(36,69,188,.18);
+}
+.hint-button:disabled {
+	opacity: .65;
+	cursor: wait;
+}
+.hint-message {
+	margin: 12px 0 0;
+	color: var(--paper);
+	font-size: 15px;
+	line-height: 1.5;
+}
 .success-panel {
 	grid-template-columns: 1fr auto;
 	gap: 12px;

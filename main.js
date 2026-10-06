@@ -13,6 +13,8 @@ const entryForm = document.querySelector("#entry-form");
 const answerForm = document.querySelector("#answer-form");
 const entryMessage = document.querySelector("#entry-message");
 const answerMessage = document.querySelector("#answer-message");
+const hintButton = document.querySelector("#hint-button");
+const hintMessage = document.querySelector("#hint-message");
 const successPanel = document.querySelector("#success-panel");
 const nextButton = document.querySelector("#next-button");
 
@@ -24,7 +26,7 @@ entryForm.addEventListener("submit", async (event) => {
 	try {
 		const result = await postToValidator({ action: "enter", password: entryForm.elements.password.value });
 		if (!result.ok) {
-			entryMessage.textContent = result.error || "ACCESS DENIED.";
+			entryMessage.textContent = result.error || "That password isn't correct. Please try again.";
 			return;
 		}
 		currentDocumentUrl = result.currentDocumentUrl;
@@ -48,7 +50,7 @@ answerForm.addEventListener("submit", async (event) => {
 	try {
 		const result = await postToValidator({ action: "answer", level: currentLevel, answer: answerForm.elements.answer.value });
 		if (!result.ok) {
-			answerMessage.textContent = result.error || "THAT ANSWER DOES NOT OPEN THIS FILE.";
+			answerMessage.textContent = result.error || "That answer isn't correct. Check the level document and try again.";
 			answerForm.elements.answer.setAttribute("aria-invalid", "true");
 			answerForm.elements.answer.select();
 			return;
@@ -64,6 +66,22 @@ answerForm.addEventListener("submit", async (event) => {
 answerForm.elements.answer.addEventListener("input", () => {
 	answerForm.elements.answer.removeAttribute("aria-invalid");
 	answerMessage.textContent = "";
+});
+
+hintButton.addEventListener("click", async () => {
+	hintButton.disabled = true;
+	hintButton.setAttribute("aria-busy", "true");
+	hintMessage.classList.remove("is-hidden");
+	hintMessage.textContent = "Loading hint…";
+	try {
+		const result = await postToValidator({ action: "hint", level: currentLevel });
+		hintMessage.textContent = result.hint || "No hint is available for this level yet.";
+	} catch {
+		hintMessage.textContent = "Hints are temporarily unavailable. Try again shortly.";
+	} finally {
+		hintButton.disabled = false;
+		hintButton.removeAttribute("aria-busy");
+	}
 });
 
 nextButton.addEventListener("click", () => {
@@ -107,6 +125,8 @@ function showSuccess(result) {
 
 function updateLevelView() {
 	answerForm.reset();
+	hintMessage.classList.add("is-hidden");
+	hintMessage.textContent = "";
 	answerForm.classList.remove("is-hidden");
 	successPanel.classList.add("is-hidden");
 	nextDocumentUrl = "";
