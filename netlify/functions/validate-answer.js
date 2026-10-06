@@ -1,7 +1,15 @@
 const { timingSafeEqual } = require("node:crypto");
 
 const TOTAL_LEVELS = 7;
-const LEVEL_ONE_DOCUMENT_URL = "https://docs.google.com/document/d/1lEfcHXlaRvOR1rbiCkWKRHRk5DmDUN0PEPsmBu5qEZU/edit?usp=sharing";
+const LEVEL_DOCUMENT_URLS = {
+	1: "https://docs.google.com/document/d/1lEfcHXlaRvOR1rbiCkWKRHRk5DmDUN0PEPsmBu5qEZU/edit?usp=sharing",
+	2: "https://docs.google.com/document/d/1TxS_QkSSp-zEatYdj7zbPoPxH9ffahXy224khvAoP84/edit?usp=sharing",
+	3: "https://docs.google.com/document/d/1l8bL2JbUo75-71edz9ZGCuS6KTMcw8_JZjXxvuk9bl0/edit?usp=sharing",
+	4: "https://docs.google.com/document/d/1z_Q13zh15afNsW73830MK0rLqSRLWmtsk2g4ArXUGsY/edit?usp=sharing",
+	5: "https://docs.google.com/document/d/1ELovgt-TEzrXYs4xSHDMoen_wp4_otGNeBJrIGskTH4/edit?usp=sharing",
+	6: "https://docs.google.com/document/d/1vRLuib6_-ktvnI2WrlNxvWs5-iSWDjL9G1Yi7HHrNVs/edit?usp=sharing",
+	7: "https://docs.google.com/document/d/1C2vB6YUs_FqMpzqJKS5ACdShUOu8I5fOVCqqP-BTq1c/edit?usp=sharing"
+};
 
 exports.handler = async (event) => {
 	if (event.httpMethod !== "POST") {
@@ -50,7 +58,7 @@ exports.handler = async (event) => {
 };
 
 function getDocumentUrl(level) {
-	const value = process.env[`ARG_LEVEL_${level}_DOC`] || (level === 1 ? LEVEL_ONE_DOCUMENT_URL : "");
+	const value = process.env[`ARG_LEVEL_${level}_DOC`] || LEVEL_DOCUMENT_URLS[level];
 	if (!value) return "";
 	try {
 		const url = new URL(value);
