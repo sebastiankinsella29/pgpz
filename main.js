@@ -10,6 +10,8 @@ let confettiFrame = 0;
 const entryView = document.querySelector("#entry-view");
 const levelView = document.querySelector("#level-view");
 const entryForm = document.querySelector("#entry-form");
+const passwordHintButton = document.querySelector("#password-hint-button");
+const passwordHint = document.querySelector("#password-hint");
 const answerForm = document.querySelector("#answer-form");
 const entryMessage = document.querySelector("#entry-message");
 const answerMessage = document.querySelector("#answer-message");
@@ -17,6 +19,13 @@ const hintButton = document.querySelector("#hint-button");
 const hintMessage = document.querySelector("#hint-message");
 const successPanel = document.querySelector("#success-panel");
 const nextButton = document.querySelector("#next-button");
+
+passwordHintButton.addEventListener("click", () => {
+	const isExpanded = passwordHintButton.getAttribute("aria-expanded") === "true";
+	passwordHintButton.setAttribute("aria-expanded", String(!isExpanded));
+	passwordHint.classList.toggle("is-hidden", isExpanded);
+	passwordHintButton.textContent = isExpanded ? "Show password hint" : "Hide password hint";
+});
 
 entryForm.addEventListener("submit", async (event) => {
 	event.preventDefault();

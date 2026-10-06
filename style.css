@@ -209,6 +209,9 @@ body {
 	font-size: 15px;
 	line-height: 1.5;
 }
+.entry__copy > .hint-button {
+	margin-top: 2px;
+}
 .success-panel {
 	grid-template-columns: 1fr auto;
 	gap: 12px;
