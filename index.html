@@ -4,31 +4,19 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="theme-color" content="#160b14">
-	<meta name="description" content="A seven-level alternate reality game. Access the dossier and follow the trail.">
-	<title>VEIL / ARG ACCESS</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+	<meta name="description" content="Password-protected seven-level puzzle.">
+	<title>ARG Access</title>
 	<link rel="stylesheet" href="style.css">
 	<script src="main.js" defer></script>
 </head>
 <body>
-	<div class="topography" aria-hidden="true"></div>
 	<main class="portal">
-		<header class="masthead">
-			<a class="identity" href="#" aria-label="Veil ARG home"><span class="identity__sigil">V</span><span>VEIL<span class="identity__sub">AN ALTERNATE REALITY</span></span></a>
-			<div class="masthead__status"><i></i> SECURE CHANNEL <span>·</span> <b>07 FILES</b></div>
-		</header>
-
 		<section class="entry" id="entry-view" aria-labelledby="entry-title">
-			<div class="entry__art" aria-hidden="true"><span class="entry__ring entry__ring--outer"></span><span class="entry__ring entry__ring--inner"></span><span class="entry__cross">+</span><span class="entry__coordinates">38° 53' 51.6" N<br>77° 02' 11.5" W</span><span class="entry__stamp">RESTRICTED<br>ACCESS</span></div>
 			<div class="entry__copy">
-				<p class="eyebrow"><span class="eyebrow__index">00</span> ARCHIVE ACCESS <span class="eyebrow__line"></span> UNVERIFIED</p>
-				<h1 id="entry-title">Some doors<br>should stay <em>closed.</em></h1>
-				<p class="entry__description">A trail of seven files has surfaced. Enter the access phrase to begin.</p>
+				<h1 id="entry-title">Enter password</h1>
 				<form class="access-form" id="entry-form">
-					<label for="entry-password">ACCESS PHRASE</label>
-					<div class="input-row"><input id="entry-password" name="password" type="password" autocomplete="current-password" placeholder="Enter phrase" required><button type="submit" aria-label="Enter archive"><span>ENTER</span><b aria-hidden="true">↗</b></button></div>
+					<label for="entry-password">Password</label>
+					<div class="input-row"><input id="entry-password" name="password" type="text" autocomplete="off" required><button type="submit"><span>Enter</span></button></div>
 					<p class="form-message" id="entry-message" role="alert" aria-live="polite"></p>
 				</form>
 			</div>
@@ -36,26 +24,22 @@
 
 		<section class="level-view is-hidden" id="level-view" aria-labelledby="level-title" aria-hidden="true">
 			<div class="level-heading">
-				<div><p class="eyebrow"><span class="eyebrow__index" id="level-index">01 / 07</span> SEALED FILE <span class="eyebrow__line"></span> ANSWER REQUIRED</p><h1 id="level-title">Level 01</h1><p class="level-heading__copy">Find the answer hidden in this level's file. Enter it here to unlock the next lead.</p></div>
-				<div class="level-seal" aria-hidden="true"><span id="seal-number">01</span><small>OPEN FILE</small></div>
+				<div><h1 id="level-title">Level 01</h1></div>
 			</div>
-			<div class="progress-row" aria-label="Level progress"><span>PROGRESS</span><div class="progress-track"><span id="progress-fill"></span></div><strong id="progress-label">01 <i>/ 07</i></strong></div>
+			<div class="progress-row" aria-label="Level progress"><div class="progress-track"><span id="progress-fill"></span></div><strong id="progress-label">01 / 07</strong></div>
 			<div class="level-content">
-				<div class="file-index"><span>FILE <b id="file-number">001</b></span><span>STATUS <b>ENCRYPTED</b></span><span>ORIGIN <b>UNKNOWN</b></span></div>
-				<a class="current-doc" id="current-doc-link" href="#" target="_blank" rel="noopener noreferrer"><span>OPEN LEVEL 01 BRIEF</span><b aria-hidden="true">↗</b></a>
+				<a class="current-doc" id="current-doc-link" href="#" target="_blank" rel="noopener noreferrer">Open level document</a>
 				<form class="answer-form" id="answer-form">
-					<label for="level-answer">LEVEL ANSWER <span>CASE INSENSITIVE</span></label>
-					<div class="input-row"><input id="level-answer" name="answer" type="text" autocomplete="off" placeholder="Enter your answer" required><button type="submit"><span>SUBMIT</span><b aria-hidden="true">↗</b></button></div>
+					<label for="level-answer">Answer</label>
+					<div class="input-row"><input id="level-answer" name="answer" type="text" autocomplete="off" required><button type="submit"><span>Submit</span></button></div>
 					<p class="form-message" id="answer-message" role="alert" aria-live="polite"></p>
 				</form>
 				<section class="success-panel is-hidden" id="success-panel" aria-live="polite">
-					<div class="success-panel__mark" aria-hidden="true">✓</div><div><p class="eyebrow">ANSWER ACCEPTED</p><h2 id="success-title" tabindex="-1">Congratulations.</h2><p id="success-copy">The next file is ready.</p></div>
-					<a class="next-button is-hidden" id="next-button" href="#" target="_blank" rel="noopener noreferrer"><span>OPEN NEXT LEVEL</span><b aria-hidden="true">↗</b></a>
+					<div><h2 id="success-title" tabindex="-1">Congratulations</h2><p id="success-copy"></p></div>
+					<a class="next-button is-hidden" id="next-button" href="#" target="_blank" rel="noopener noreferrer">Continue</a>
 				</section>
 			</div>
-			<p class="level-footnote"><span>KEEP YOUR EYES OPEN.</span><span>YOU ARE NOT ALONE.</span></p>
 		</section>
-		<footer class="page-footer"><span>VEIL PROJECT <b>©</b> 2026</span><span>DO NOT DISTRIBUTE</span><span>ENCRYPTED CONNECTION <i></i></span></footer>
 	</main>
 	<canvas id="confetti" aria-hidden="true"></canvas>
 </body>

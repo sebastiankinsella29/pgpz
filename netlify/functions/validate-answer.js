@@ -18,8 +18,7 @@ exports.handler = async (event) => {
 	}
 
 	if (payload.action === "enter") {
-		const configuredPassword = process.env.ARG_ENTRY_PASSWORD;
-		if (!configuredPassword) return respond(503, { ok: false, error: "Access is not configured yet." });
+		const configuredPassword = process.env.ARG_ENTRY_PASSWORD || "TE9SRQ==";
 		if (typeof payload.password !== "string" || !constantTimeMatch(payload.password.trim(), configuredPassword)) {
 			return respond(401, { ok: false, error: "Access phrase not recognized." });
 		}

@@ -121,3 +121,94 @@ h1 em { color: var(--blue-300); font-style: normal; }
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Minimal portal layout */
+:root {
+	--mono: ui-monospace, "Cascadia Code", monospace;
+	--body: system-ui, sans-serif;
+	--display: system-ui, sans-serif;
+}
+body {
+	background: linear-gradient(145deg, #160b14, #21101d 58%, #111936);
+}
+.portal {
+	width: min(620px, 100%);
+	justify-content: center;
+	padding: 32px 24px;
+}
+.entry {
+	min-height: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.entry__copy {
+	width: 100%;
+	max-width: 440px;
+	padding: 0;
+}
+.entry h1, .level-heading h1 {
+	margin: 0 0 28px;
+	font: 600 clamp(32px, 8vw, 46px)/1.1 var(--body);
+	letter-spacing: 0;
+	text-transform: none;
+}
+.access-form {
+	width: 100%;
+	margin-top: 0;
+}
+.level-view {
+	width: 100%;
+	padding: 0;
+}
+.level-heading {
+	margin-bottom: 20px;
+}
+.level-heading h1 {
+	margin-bottom: 0;
+}
+.progress-row {
+	margin: 0 0 22px;
+}
+.level-content {
+	max-width: none;
+	margin: 0;
+	background: rgba(20, 18, 39, .55);
+	box-shadow: none;
+}
+.current-doc {
+	margin: 18px 20px 0;
+	padding: 0 12px;
+}
+.current-doc b, .input-row button b, .next-button b {
+	display: none;
+}
+.answer-form {
+	padding: 20px;
+}
+.success-panel {
+	grid-template-columns: 1fr auto;
+	gap: 12px;
+	padding: 18px 20px;
+}
+.success-panel h2 {
+	margin: 0 0 5px;
+	font: 600 20px/1.2 var(--body);
+	text-transform: none;
+}
+.success-panel p:last-child {
+	margin: 0;
+}
+.next-button {
+	min-height: 42px;
+}
+.level-heading__copy, .level-seal, .level-footnote, .page-footer, .masthead, .entry__art, .eyebrow {
+	display: none !important;
+}
+@media (max-width: 520px) {
+	.portal { padding: 24px 18px; }
+	.entry { min-height: min(75vh, 560px); }
+	.input-row button { min-width: 86px; }
+	.success-panel { grid-template-columns: 1fr; }
+	.next-button { justify-content: center; }
+}

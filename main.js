@@ -87,19 +87,18 @@ function showSuccess(result) {
 	answerForm.classList.add("is-hidden");
 	successPanel.classList.remove("is-hidden");
 	answerMessage.textContent = "";
-	document.querySelector(".file-index span:nth-child(2) b").textContent = "SOLVED";
 	if (result.complete) {
-		document.querySelector("#success-title").textContent = "You made it home.";
-		document.querySelector("#success-copy").textContent = "All seven levels complete. Congratulations.";
+		document.querySelector("#success-title").textContent = "Congratulations";
+		document.querySelector("#success-copy").textContent = "All 7 levels complete.";
 		nextButton.classList.add("is-hidden");
-		document.querySelector("#level-title").textContent = "The End";
+		document.querySelector("#level-title").textContent = "Complete";
 	} else {
 		nextDocumentUrl = result.nextDocumentUrl;
 		document.querySelector("#success-title").textContent = "Congratulations.";
-		document.querySelector("#success-copy").textContent = `Level ${String(currentLevel).padStart(2, "0")} complete. The next file is ready.`;
+		document.querySelector("#success-copy").textContent = `Level ${currentLevel} complete.`;
 		nextButton.classList.remove("is-hidden");
 		nextButton.href = nextDocumentUrl;
-		nextButton.querySelector("span").textContent = `OPEN LEVEL ${result.nextLevel} FILE`;
+		nextButton.textContent = `Continue to level ${result.nextLevel}`;
 	}
 	launchConfetti();
 	if (result.complete) document.querySelector("#success-title").focus();
@@ -112,14 +111,9 @@ function updateLevelView() {
 	successPanel.classList.add("is-hidden");
 	nextDocumentUrl = "";
 	const number = String(currentLevel).padStart(2, "0");
-	document.querySelector("#level-index").textContent = `${number} / 07`;
-	document.querySelector("#seal-number").textContent = number;
-	document.querySelector("#file-number").textContent = `00${currentLevel}`;
 	document.querySelector("#level-title").textContent = `Level ${number}`;
-	document.querySelector("#file-number").textContent = `00${currentLevel}`;
-	document.querySelector("#progress-label").innerHTML = `${number} <i>/ 07</i>`;
+	document.querySelector("#progress-label").textContent = `${number} / 07`;
 	document.querySelector("#progress-fill").style.width = `${(currentLevel / TOTAL_LEVELS) * 100}%`;
-	document.querySelector(".file-index span:nth-child(2) b").textContent = "ENCRYPTED";
 	updateCurrentDocumentLink();
 	document.querySelector("#level-answer").focus();
 }
@@ -127,7 +121,7 @@ function updateLevelView() {
 function updateCurrentDocumentLink() {
 	const link = document.querySelector("#current-doc-link");
 	link.href = currentDocumentUrl;
-	link.querySelector("span").textContent = `OPEN LEVEL ${String(currentLevel).padStart(2, "0")} BRIEF`;
+	link.textContent = `Open level ${currentLevel} document`;
 }
 
 function setBusy(button, busy) {

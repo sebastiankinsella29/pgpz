@@ -6,9 +6,8 @@ This is a static frontend with a Netlify Function that checks access and level a
 
 Deploy this repository with Netlify. GitHub Pages can host static files, but it cannot execute the validation function or protect answers. Use GitHub as the source repository and Netlify as the site host so `/.netlify/functions/validate-answer` is same-origin.
 
-In Netlify, add these environment variables under **Site configuration → Environment variables**, then redeploy:
+The entry function defaults to `TE9SRQ==`. To change it for a deployment, set `ARG_ENTRY_PASSWORD` in Netlify under **Site configuration → Environment variables**. Add the remaining variables there, then redeploy:
 
-- `ARG_ENTRY_PASSWORD`: the entry passphrase you chose
 - `ARG_LEVEL_1_ANSWER` through `ARG_LEVEL_7_ANSWER`: each level's answer
 - `ARG_LEVEL_1_DOC` through `ARG_LEVEL_7_DOC`: each level's Google Docs URL, including the initial Level 1 brief
 
