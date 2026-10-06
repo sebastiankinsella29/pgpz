@@ -202,13 +202,52 @@ body {
 .next-button {
 	min-height: 42px;
 }
+.entry h1, .level-heading h1 {
+	font-size: clamp(38px, 8vw, 48px);
+}
+.access-form label, .answer-form>label {
+	font-size: 13px;
+}
+.input-row {
+	min-height: 56px;
+	border-radius: 9px;
+	overflow: hidden;
+}
+.input-row input {
+	font-size: 16px;
+}
+.input-row button {
+	min-width: 112px;
+	font-size: 13px;
+	border-radius: 0 8px 8px 0;
+}
+.progress-row {
+	font-size: 13px;
+}
+.progress-row strong {
+	font-size: 14px;
+}
+.level-content {
+	border-radius: 12px;
+	overflow: hidden;
+}
+.current-doc, .next-button {
+	border-radius: 8px;
+	font-size: 13px;
+}
+.current-doc {
+	min-height: 48px;
+}
+.success-panel {
+	border-radius: 0 0 12px 12px;
+}
 .level-heading__copy, .level-seal, .level-footnote, .page-footer, .masthead, .entry__art, .eyebrow {
 	display: none !important;
 }
 @media (max-width: 520px) {
 	.portal { padding: 24px 18px; }
 	.entry { min-height: min(75vh, 560px); }
-	.input-row button { min-width: 86px; }
+	.input-row button { min-width: 92px; }
 	.success-panel { grid-template-columns: 1fr; }
 	.next-button { justify-content: center; }
 }
