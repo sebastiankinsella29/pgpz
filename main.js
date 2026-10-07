@@ -19,6 +19,7 @@ const hintButton = document.querySelector("#hint-button");
 const hintMessage = document.querySelector("#hint-message");
 const successPanel = document.querySelector("#success-panel");
 const nextButton = document.querySelector("#next-button");
+const answerParts = [...answerForm.querySelectorAll(".level-one-part")];
 
 passwordHintButton.addEventListener("click", () => {
 	const isExpanded = passwordHintButton.getAttribute("aria-expanded") === "true";
@@ -42,8 +43,9 @@ entryForm.addEventListener("submit", async (event) => {
 		entryView.classList.add("is-hidden");
 		levelView.classList.remove("is-hidden");
 		levelView.setAttribute("aria-hidden", "false");
+		setAnswerMode();
 		updateCurrentDocumentLink();
-		document.querySelector("#level-answer").focus();
+		getActiveAnswerControl().focus();
 	} catch {
 		entryMessage.textContent = "VALIDATION SERVICE UNAVAILABLE. TRY AGAIN SHORTLY.";
 	} finally {
@@ -56,12 +58,17 @@ answerForm.addEventListener("submit", async (event) => {
 	const submitButton = answerForm.querySelector("button[type='submit']");
 	setBusy(submitButton, true);
 	answerMessage.textContent = "VERIFYING ANSWER…";
+	const answer = currentLevel === 1
+		? answerParts.map((part) => part.value.trim()).join(" ")
+		: answerForm.elements.answer.value;
 	try {
-		const result = await postToValidator({ action: "answer", level: currentLevel, answer: answerForm.elements.answer.value });
+		const result = await postToValidator({ action: "answer", level: currentLevel, answer });
 		if (!result.ok) {
 			answerMessage.textContent = result.error || "That answer isn't correct. Check the level document and try again.";
-			answerForm.elements.answer.setAttribute("aria-invalid", "true");
-			answerForm.elements.answer.select();
+			if (currentLevel !== 1) {
+				answerForm.elements.answer.setAttribute("aria-invalid", "true");
+				answerForm.elements.answer.select();
+			}
 			return;
 		}
 		showSuccess(result);
@@ -76,6 +83,10 @@ answerForm.elements.answer.addEventListener("input", () => {
 	answerForm.elements.answer.removeAttribute("aria-invalid");
 	answerMessage.textContent = "";
 });
+
+answerParts.forEach((part) => part.addEventListener("input", () => {
+	answerMessage.textContent = "";
+}));
 
 hintButton.addEventListener("click", async () => {
 	hintButton.disabled = true;
@@ -134,6 +145,7 @@ function showSuccess(result) {
 
 function updateLevelView() {
 	answerForm.reset();
+	setAnswerMode();
 	hintMessage.classList.add("is-hidden");
 	hintMessage.textContent = "";
 	answerForm.classList.remove("is-hidden");
@@ -144,7 +156,26 @@ function updateLevelView() {
 	document.querySelector("#progress-label").textContent = `${number} / 07`;
 	document.querySelector("#progress-fill").style.width = `${(currentLevel / TOTAL_LEVELS) * 100}%`;
 	updateCurrentDocumentLink();
-	document.querySelector("#level-answer").focus();
+	getActiveAnswerControl().focus();
+}
+
+function setAnswerMode() {
+	const isLevelOne = currentLevel === 1;
+	const standardAnswer = answerForm.elements.answer;
+	const levelOneTemplate = document.querySelector("#level-one-template");
+	standardAnswer.disabled = isLevelOne;
+	standardAnswer.required = !isLevelOne;
+	answerParts.forEach((part) => {
+		part.disabled = !isLevelOne;
+		part.required = isLevelOne;
+	});
+	levelOneTemplate.classList.toggle("is-hidden", !isLevelOne);
+	levelOneTemplate.setAttribute("aria-hidden", String(!isLevelOne));
+	document.querySelector("#answer-label").textContent = isLevelOne ? "Complete the phrase" : "Answer";
+}
+
+function getActiveAnswerControl() {
+	return currentLevel === 1 ? answerParts[0] : answerForm.elements.answer;
 }
 
 function updateCurrentDocumentLink() {
