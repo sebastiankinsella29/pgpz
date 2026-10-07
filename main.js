@@ -12,14 +12,22 @@ const levelView = document.querySelector("#level-view");
 const entryForm = document.querySelector("#entry-form");
 const passwordHintButton = document.querySelector("#password-hint-button");
 const passwordHint = document.querySelector("#password-hint");
+const testEnterButton = document.querySelector("#test-enter-button");
 const answerForm = document.querySelector("#answer-form");
 const entryMessage = document.querySelector("#entry-message");
 const answerMessage = document.querySelector("#answer-message");
 const hintButton = document.querySelector("#hint-button");
 const hintMessage = document.querySelector("#hint-message");
+const testNextButton = document.querySelector("#test-next-button");
 const successPanel = document.querySelector("#success-panel");
 const nextButton = document.querySelector("#next-button");
 const answerParts = [...answerForm.querySelectorAll(".level-one-part")];
+const testMode = new URLSearchParams(window.location.search).get("testMode") === "1";
+
+if (testMode) {
+	testEnterButton.classList.remove("is-hidden");
+	testNextButton.classList.remove("is-hidden");
+}
 
 passwordHintButton.addEventListener("click", () => {
 	const isExpanded = passwordHintButton.getAttribute("aria-expanded") === "true";
@@ -27,6 +35,8 @@ passwordHintButton.addEventListener("click", () => {
 	passwordHint.classList.toggle("is-hidden", isExpanded);
 	passwordHintButton.textContent = isExpanded ? "Show password hint" : "Hide password hint";
 });
+
+testEnterButton.addEventListener("click", () => openLevelView(""));
 
 entryForm.addEventListener("submit", async (event) => {
 	event.preventDefault();
@@ -39,13 +49,7 @@ entryForm.addEventListener("submit", async (event) => {
 			entryMessage.textContent = result.error || "That password isn't correct. Please try again.";
 			return;
 		}
-		currentDocumentUrl = result.currentDocumentUrl;
-		entryView.classList.add("is-hidden");
-		levelView.classList.remove("is-hidden");
-		levelView.setAttribute("aria-hidden", "false");
-		setAnswerMode();
-		updateCurrentDocumentLink();
-		getActiveAnswerControl().focus();
+		openLevelView(result.currentDocumentUrl);
 	} catch {
 		entryMessage.textContent = "VALIDATION SERVICE UNAVAILABLE. TRY AGAIN SHORTLY.";
 	} finally {
@@ -110,6 +114,13 @@ nextButton.addEventListener("click", () => {
 	updateLevelView();
 });
 
+testNextButton.addEventListener("click", () => {
+	if (currentLevel >= TOTAL_LEVELS) return;
+	currentLevel += 1;
+	currentDocumentUrl = "";
+	updateLevelView();
+});
+
 async function postToValidator(payload) {
 	const response = await fetch(API_ENDPOINT, {
 		method: "POST",
@@ -119,6 +130,16 @@ async function postToValidator(payload) {
 	const result = await response.json();
 	if (!response.ok && !result.error) throw new Error("Validation request failed");
 	return result;
+}
+
+function openLevelView(documentUrl) {
+	currentDocumentUrl = documentUrl;
+	entryView.classList.add("is-hidden");
+	levelView.classList.remove("is-hidden");
+	levelView.setAttribute("aria-hidden", "false");
+	setAnswerMode();
+	updateCurrentDocumentLink();
+	getActiveAnswerControl().focus();
 }
 
 function showSuccess(result) {
@@ -155,6 +176,7 @@ function updateLevelView() {
 	document.querySelector("#level-title").textContent = `Level ${number}`;
 	document.querySelector("#progress-label").textContent = `${number} / 07`;
 	document.querySelector("#progress-fill").style.width = `${(currentLevel / TOTAL_LEVELS) * 100}%`;
+	testNextButton.disabled = currentLevel >= TOTAL_LEVELS;
 	updateCurrentDocumentLink();
 	getActiveAnswerControl().focus();
 }
@@ -163,8 +185,10 @@ function setAnswerMode() {
 	const isLevelOne = currentLevel === 1;
 	const standardAnswer = answerForm.elements.answer;
 	const levelOneTemplate = document.querySelector("#level-one-template");
+	const answerRow = answerForm.querySelector(".input-row");
 	standardAnswer.disabled = isLevelOne;
 	standardAnswer.required = !isLevelOne;
+	answerRow.classList.toggle("level-one-answer", isLevelOne);
 	answerParts.forEach((part) => {
 		part.disabled = !isLevelOne;
 		part.required = isLevelOne;
@@ -182,6 +206,7 @@ function updateCurrentDocumentLink() {
 	const link = document.querySelector("#current-doc-link");
 	link.href = currentDocumentUrl;
 	link.textContent = `Open level ${currentLevel} document`;
+	link.classList.toggle("is-hidden", !currentDocumentUrl);
 }
 
 function setBusy(button, busy) {

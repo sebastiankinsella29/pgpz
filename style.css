@@ -78,6 +78,12 @@ h1 em { color: var(--blue-300); font-style: normal; }
 .answer-form>label span { color: #806d7d; }
 .level-one-template { flex: 1; min-width: 0; padding: 7px 12px; color: var(--paper); font: 13px/2 var(--mono); }
 .input-row .level-one-part { display: inline-block; flex: none; width: 7ch; min-width: 7ch; height: 32px; margin: 0 2px; padding: 0 4px; border: 1px solid rgba(168,188,255,.42); background: rgba(10,7,15,.25); }
+.input-row.level-one-answer { display: block; padding: 12px; }
+.level-one-answer .level-one-template { display: flex; flex-wrap: nowrap; align-items: center; gap: 5px; overflow-x: auto; padding: 0; font-size: 11px; white-space: nowrap; }
+.level-one-answer .level-one-part-group { display: inline-flex; align-items: center; white-space: nowrap; }
+.level-one-answer .level-one-part-group--ending { gap: 5px; }
+.level-one-answer .input-row .level-one-part { width: 6ch; min-width: 6ch; }
+.level-one-answer button { width: 100%; min-height: 48px; margin-top: 12px; border-left: 0; border-top: 1px solid rgba(168,188,255,.27); }
 .success-panel { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 17px; padding: 20px 21px; border-top: 1px solid rgba(168,188,255,.24); background: linear-gradient(100deg, rgba(36,69,188,.17), rgba(118,42,72,.16)); animation: rise .35s both; }
 .success-panel__mark { display: grid; place-items: center; width: 39px; height: 39px; border: 1px solid var(--blue-300); border-radius: 50%; color: var(--blue-300); font-size: 20px; }
 .success-panel .eyebrow { color: var(--blue-300); font-size: 8px; }

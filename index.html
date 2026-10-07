@@ -18,6 +18,7 @@
 					<label for="entry-password">Password</label>
 					<div class="input-row"><input id="entry-password" name="password" type="text" autocomplete="off" required><button type="submit"><span>Enter</span></button></div>
 					<p class="form-message" id="entry-message" role="alert" aria-live="polite"></p>
+					<button class="hint-button is-hidden" id="test-enter-button" type="button">Test: enter level 1</button>
 				</form>
 				<button class="hint-button" id="password-hint-button" type="button" aria-expanded="false" aria-controls="password-hint">Show password hint</button>
 				<p class="hint-message is-hidden" id="password-hint" role="note">King Garamond was brought to his demise by 8 high-ranking officials, just 2 from his font size.</p>
@@ -36,14 +37,15 @@
 					<div class="input-row">
 						<input id="level-answer" name="answer" type="text" autocomplete="off" required>
 						<div class="level-one-template is-hidden" id="level-one-template" role="group" aria-label="Final code parts" aria-hidden="true">
-							<input class="level-one-part" type="text" autocomplete="off" aria-label="First code part" disabled required><span>, he cheers. I have finally entered the</span>
-							<input class="level-one-part" type="text" autocomplete="off" aria-label="Second code part" disabled required>
-							<input class="level-one-part" type="text" autocomplete="off" aria-label="Third code part" disabled required>.
+							<span class="level-one-part-group"><input class="level-one-part" type="text" autocomplete="off" aria-label="First code part" disabled required><span>,</span></span>
+							<span>he cheers. I have finally entered the</span>
+							<span class="level-one-part-group level-one-part-group--ending"><input class="level-one-part" type="text" autocomplete="off" aria-label="Second code part" disabled required><input class="level-one-part" type="text" autocomplete="off" aria-label="Third code part" disabled required><span>.</span></span>
 						</div>
 						<button type="submit"><span>Submit</span></button>
 					</div>
 					<p class="form-message" id="answer-message" role="alert" aria-live="polite"></p>
 					<button class="hint-button" id="hint-button" type="button">Show hint</button>
+					<button class="hint-button is-hidden" id="test-next-button" type="button">Test: next level</button>
 					<p class="hint-message is-hidden" id="hint-message" role="status" aria-live="polite"></p>
 				</form>
 				<section class="success-panel is-hidden" id="success-panel" aria-live="polite">

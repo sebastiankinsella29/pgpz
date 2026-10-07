@@ -49,7 +49,8 @@ exports.handler = async (event) => {
 		return respond(400, { ok: false, error: "Invalid level answer request." });
 	}
 
-	const configuredAnswer = process.env[`ARG_LEVEL_${payload.level}_ANSWER`];
+	const configuredAnswer = process.env[`ARG_LEVEL_${payload.level}_ANSWER`]
+		|| (payload.level === 1 ? "YAY PALEOZOIC ERA" : "");
 	if (!configuredAnswer) return respond(503, { ok: false, error: "This level is not configured yet." });
 	const submittedAnswer = payload.answer.trim().toUpperCase();
 	const expectedAnswer = configuredAnswer.trim().toUpperCase();
