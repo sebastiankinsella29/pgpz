@@ -54,16 +54,26 @@ exports.handler = async (event) => {
 	if (!configuredAnswer) return respond(503, { ok: false, error: "This level is not configured yet." });
 	const submittedAnswer = payload.answer.trim().toUpperCase();
 	const expectedAnswer = configuredAnswer.trim().toUpperCase();
+	const submittedParts = submittedAnswer.split(/\s+/);
+	const expectedParts = expectedAnswer.split(/\s+/);
+	const partsCorrect = payload.level === 1
+		? expectedParts.map((part, index) => submittedParts.length === expectedParts.length
+			&& constantTimeMatch(submittedParts[index], part))
+		: undefined;
 	if (!constantTimeMatch(submittedAnswer, expectedAnswer)) {
-		return respond(401, { ok: false, error: "That answer isn't correct. Check the level document and try again." });
+		return respond(401, {
+			ok: false,
+			error: "That answer isn't correct. Check the level document and try again.",
+			...(partsCorrect ? { partsCorrect } : {})
+		});
 	}
 
-	if (payload.level === TOTAL_LEVELS) return respond(200, { ok: true, complete: true });
+	if (payload.level === TOTAL_LEVELS) return respond(200, { ok: true, complete: true, ...(partsCorrect ? { partsCorrect } : {}) });
 
 	const nextLevel = payload.level + 1;
 	const nextDocumentUrl = getDocumentUrl(nextLevel);
 	if (!nextDocumentUrl) return respond(503, { ok: false, error: "The next level document is not configured yet." });
-	return respond(200, { ok: true, complete: false, nextLevel, nextDocumentUrl });
+	return respond(200, { ok: true, complete: false, nextLevel, nextDocumentUrl, ...(partsCorrect ? { partsCorrect } : {}) });
 };
 
 function getDocumentUrl(level) {

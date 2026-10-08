@@ -1,11 +1,16 @@
 const API_ENDPOINT = "/.netlify/functions/validate-answer";
 const TOTAL_LEVELS = 7;
+const LEVEL_ONE_PHRASE = "he cheers. I have finally entered the";
+const ENCHANTMENT_GLYPHS = "QWERTYUIOPASDFGHJKLZXCVBNM";
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 let currentLevel = 1;
 let nextDocumentUrl = "";
 let currentDocumentUrl = "";
 let confettiFrame = 0;
+let levelOnePhraseRevealed = false;
+let phraseShuffleTimer = 0;
+const levelHistory = [];
 
 const entryView = document.querySelector("#entry-view");
 const levelView = document.querySelector("#level-view");
@@ -19,9 +24,11 @@ const answerMessage = document.querySelector("#answer-message");
 const hintButton = document.querySelector("#hint-button");
 const hintMessage = document.querySelector("#hint-message");
 const testNextButton = document.querySelector("#test-next-button");
+const backButton = document.querySelector("#back-button");
 const successPanel = document.querySelector("#success-panel");
 const nextButton = document.querySelector("#next-button");
 const answerParts = [...answerForm.querySelectorAll(".level-one-part")];
+const levelOnePhrase = document.querySelector("#level-one-phrase");
 const testMode = new URLSearchParams(window.location.search).get("testMode") === "1";
 
 if (testMode) {
@@ -68,12 +75,23 @@ answerForm.addEventListener("submit", async (event) => {
 	try {
 		const result = await postToValidator({ action: "answer", level: currentLevel, answer });
 		if (!result.ok) {
-			answerMessage.textContent = result.error || "That answer isn't correct. Check the level document and try again.";
+			if (currentLevel === 1 && Array.isArray(result.partsCorrect)) {
+				setPartFeedback(result.partsCorrect);
+				answerMessage.textContent = result.partsCorrect
+					.map((isCorrect, index) => `Blank ${index + 1}: ${isCorrect ? "correct" : "wrong"}`)
+					.join("; ") + ".";
+			} else {
+				answerMessage.textContent = result.error || "That answer isn't correct. Check the level document and try again.";
+			}
 			if (currentLevel !== 1) {
 				answerForm.elements.answer.setAttribute("aria-invalid", "true");
 				answerForm.elements.answer.select();
 			}
 			return;
+		}
+		if (currentLevel === 1) {
+			setPartFeedback(result.partsCorrect || answerParts.map(() => true));
+			await revealLevelOnePhrase();
 		}
 		showSuccess(result);
 	} catch {
@@ -89,6 +107,7 @@ answerForm.elements.answer.addEventListener("input", () => {
 });
 
 answerParts.forEach((part) => part.addEventListener("input", () => {
+	clearPartFeedback();
 	answerMessage.textContent = "";
 }));
 
@@ -109,6 +128,7 @@ hintButton.addEventListener("click", async () => {
 });
 
 nextButton.addEventListener("click", () => {
+	levelHistory.push({ level: currentLevel, documentUrl: currentDocumentUrl });
 	currentLevel += 1;
 	currentDocumentUrl = nextDocumentUrl;
 	updateLevelView();
@@ -116,8 +136,17 @@ nextButton.addEventListener("click", () => {
 
 testNextButton.addEventListener("click", () => {
 	if (currentLevel >= TOTAL_LEVELS) return;
+	levelHistory.push({ level: currentLevel, documentUrl: currentDocumentUrl });
 	currentLevel += 1;
 	currentDocumentUrl = "";
+	updateLevelView();
+});
+
+backButton.addEventListener("click", () => {
+	const previousLevel = levelHistory.pop();
+	if (!previousLevel) return;
+	currentLevel = previousLevel.level;
+	currentDocumentUrl = previousLevel.documentUrl;
 	updateLevelView();
 });
 
@@ -143,9 +172,13 @@ function openLevelView(documentUrl) {
 }
 
 function showSuccess(result) {
-	answerForm.classList.add("is-hidden");
+	answerForm.classList.toggle("is-hidden", currentLevel !== 1);
 	successPanel.classList.remove("is-hidden");
 	answerMessage.textContent = "";
+	if (currentLevel === 1) {
+		answerParts.forEach((part) => { part.disabled = true; });
+		answerForm.querySelector("button[type='submit']").disabled = true;
+	}
 	if (result.complete) {
 		document.querySelector("#success-title").textContent = "Congratulations";
 		document.querySelector("#success-copy").textContent = "All 7 levels complete.";
@@ -167,6 +200,8 @@ function showSuccess(result) {
 function updateLevelView() {
 	answerForm.reset();
 	setAnswerMode();
+	answerForm.querySelector("button[type='submit']").disabled = false;
+	clearPartFeedback();
 	hintMessage.classList.add("is-hidden");
 	hintMessage.textContent = "";
 	answerForm.classList.remove("is-hidden");
@@ -177,6 +212,7 @@ function updateLevelView() {
 	document.querySelector("#progress-label").textContent = `${number} / 07`;
 	document.querySelector("#progress-fill").style.width = `${(currentLevel / TOTAL_LEVELS) * 100}%`;
 	testNextButton.disabled = currentLevel >= TOTAL_LEVELS;
+	backButton.disabled = levelHistory.length === 0;
 	updateCurrentDocumentLink();
 	getActiveAnswerControl().focus();
 }
@@ -195,7 +231,69 @@ function setAnswerMode() {
 	});
 	levelOneTemplate.classList.toggle("is-hidden", !isLevelOne);
 	levelOneTemplate.setAttribute("aria-hidden", String(!isLevelOne));
+	if (isLevelOne && !levelOnePhraseRevealed) {
+		startPhraseShuffle();
+	} else {
+		window.clearInterval(phraseShuffleTimer);
+		levelOnePhrase.textContent = LEVEL_ONE_PHRASE;
+		levelOnePhrase.setAttribute("aria-label", LEVEL_ONE_PHRASE);
+	}
 	document.querySelector("#answer-label").textContent = isLevelOne ? "Complete the phrase" : "Answer";
+}
+
+function createEnchantmentText() {
+	return LEVEL_ONE_PHRASE.replace(/[a-z]/gi, () => ENCHANTMENT_GLYPHS[Math.floor(Math.random() * ENCHANTMENT_GLYPHS.length)]);
+}
+
+function startPhraseShuffle() {
+	window.clearInterval(phraseShuffleTimer);
+	levelOnePhrase.textContent = createEnchantmentText();
+	levelOnePhrase.setAttribute("aria-label", "Hidden phrase");
+	phraseShuffleTimer = window.setInterval(() => {
+		levelOnePhrase.textContent = createEnchantmentText();
+	}, 100);
+}
+
+async function revealLevelOnePhrase() {
+	levelOnePhraseRevealed = true;
+	window.clearInterval(phraseShuffleTimer);
+	if (reducedMotion.matches) {
+		levelOnePhrase.textContent = LEVEL_ONE_PHRASE;
+		levelOnePhrase.setAttribute("aria-label", LEVEL_ONE_PHRASE);
+		return;
+	}
+	levelOnePhrase.classList.add("is-enchanting");
+	levelOnePhrase.setAttribute("aria-label", "Phrase reveal in progress");
+	const revealSteps = 18;
+	for (let step = 0; step <= revealSteps; step += 1) {
+		const revealedCharacters = Math.floor((step / revealSteps) * LEVEL_ONE_PHRASE.length);
+		levelOnePhrase.textContent = [...LEVEL_ONE_PHRASE].map((character, index) => {
+			if (index < revealedCharacters || !/[a-z]/i.test(character)) return character;
+			return ENCHANTMENT_GLYPHS[Math.floor(Math.random() * ENCHANTMENT_GLYPHS.length)];
+		}).join("");
+		await new Promise((resolve) => window.setTimeout(resolve, 45));
+	}
+	levelOnePhrase.textContent = LEVEL_ONE_PHRASE;
+	levelOnePhrase.setAttribute("aria-label", LEVEL_ONE_PHRASE);
+	levelOnePhrase.classList.remove("is-enchanting");
+}
+
+function setPartFeedback(partsCorrect) {
+	answerParts.forEach((part, index) => {
+		const isCorrect = partsCorrect[index] === true;
+		part.classList.toggle("is-correct", isCorrect);
+		part.classList.toggle("is-incorrect", !isCorrect);
+		part.setAttribute("aria-invalid", String(!isCorrect));
+		part.setAttribute("aria-label", `Code part ${index + 1}, ${isCorrect ? "correct" : "wrong"}`);
+	});
+}
+
+function clearPartFeedback() {
+	answerParts.forEach((part, index) => {
+		part.classList.remove("is-correct", "is-incorrect");
+		part.removeAttribute("aria-invalid");
+		part.setAttribute("aria-label", `${["First", "Second", "Third"][index]} code part`);
+	});
 }
 
 function getActiveAnswerControl() {
