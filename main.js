@@ -316,24 +316,14 @@ function launchConfetti() {
 	cancelAnimationFrame(confettiFrame);
 	const canvas = document.querySelector("#confetti");
 	const context = canvas.getContext("2d");
-	const ratio = Math.min(window.devicePixelRatio || 1, 2);
+	if (!context) return;
+	const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
 	canvas.width = window.innerWidth * ratio;
 	canvas.height = window.innerHeight * ratio;
 	context.setTransform(ratio, 0, 0, ratio, 0, 0);
 	const colors = ["#5278f2", "#a8bcff", "#b34468", "#f07691", "#f2eaf0"];
-	if (reducedMotion.matches) {
-		for (let index = 0; index < 90; index += 1) {
-			context.save();
-			context.translate(Math.random() * window.innerWidth, Math.random() * window.innerHeight * .78);
-			context.rotate(Math.random() * Math.PI);
-			context.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-			context.fillRect(-3, -5, 6, 10);
-			context.restore();
-		}
-		window.setTimeout(() => context.clearRect(0, 0, window.innerWidth, window.innerHeight), 1800);
-		return;
-	}
-	const pieces = Array.from({ length: 150 }, () => ({
+	const reducedMotionMode = reducedMotion.matches;
+	const pieces = Array.from({ length: reducedMotionMode ? 32 : 90 }, () => ({
 		x: Math.random() * window.innerWidth,
 		y: -20 - Math.random() * window.innerHeight * .45,
 		width: 4 + Math.random() * 6,
@@ -345,20 +335,36 @@ function launchConfetti() {
 		color: colors[Math.floor(Math.random() * colors.length)]
 	}));
 	const startedAt = performance.now();
+	let previousFrame = startedAt;
 	function frame(now) {
+		const frameScale = Math.min((now - previousFrame) / (1000 / 60), 2);
+		previousFrame = now;
 		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-		for (const piece of pieces) {
-			piece.x += piece.velocityX;
-			piece.y += piece.velocityY;
-			piece.rotation += piece.spin;
-			context.save();
-			context.translate(piece.x, piece.y);
-			context.rotate(piece.rotation);
-			context.fillStyle = piece.color;
-			context.fillRect(-piece.width / 2, -piece.height / 2, piece.width, piece.height);
-			context.restore();
+		for (const color of colors) {
+			context.beginPath();
+			for (const piece of pieces) {
+				if (piece.color !== color) continue;
+				piece.x += piece.velocityX * frameScale;
+				piece.y += piece.velocityY * frameScale;
+				piece.rotation += piece.spin * frameScale;
+				const cosine = Math.cos(piece.rotation);
+				const sine = Math.sin(piece.rotation);
+				const halfWidth = piece.width / 2;
+				const halfHeight = piece.height / 2;
+				const corners = [
+					[-halfWidth, -halfHeight], [halfWidth, -halfHeight],
+					[halfWidth, halfHeight], [-halfWidth, halfHeight]
+				].map(([x, y]) => [piece.x + x * cosine - y * sine, piece.y + x * sine + y * cosine]);
+				context.moveTo(corners[0][0], corners[0][1]);
+				for (let index = 1; index < corners.length; index += 1) {
+					context.lineTo(corners[index][0], corners[index][1]);
+				}
+				context.closePath();
+			}
+			context.fillStyle = color;
+			context.fill();
 		}
-		if (now - startedAt < 2600) confettiFrame = requestAnimationFrame(frame);
+		if (now - startedAt < (reducedMotionMode ? 2200 : 3200)) confettiFrame = requestAnimationFrame(frame);
 		else context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 	}
 	confettiFrame = requestAnimationFrame(frame);
